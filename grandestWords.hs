@@ -10,19 +10,19 @@ main = do
 getGrandestWords words = getGrandestWords' [""] [""] words
 
 getGrandestWords' :: [String] -> [String] -> [String] -> ([String], [String])
-getGrandestWords' mostGrand secondGrand [] = (mostGrand, secondGrand)
-getGrandestWords' mostGrand secondGrand [x]
-  | getGrandnessValue x > getGrandnessValue (head mostGrand) = getGrandestWords' [x] mostGrand []
-  | getGrandnessValue x > getGrandnessValue (head secondGrand) = getGrandestWords' mostGrand [x] [] 
-  | getGrandnessValue x == getGrandnessValue (head mostGrand) = getGrandestWords' (x:mostGrand) secondGrand [] 
-  | getGrandnessValue x == getGrandnessValue (head secondGrand) = getGrandestWords' mostGrand (x:secondGrand) [] 
-  | otherwise = getGrandestWords' mostGrand secondGrand []
-getGrandestWords' mostGrand secondGrand (x:xs)
-  | getGrandnessValue x > getGrandnessValue (head mostGrand) = getGrandestWords' [x] mostGrand xs
-  | getGrandnessValue x > getGrandnessValue (head secondGrand) = getGrandestWords' mostGrand [x] [] 
-  | getGrandnessValue x == getGrandnessValue (head mostGrand) = getGrandestWords' (x:mostGrand) secondGrand xs 
-  | getGrandnessValue x == getGrandnessValue (head secondGrand) = getGrandestWords' mostGrand (x:secondGrand) xs 
-  | otherwise = getGrandestWords' mostGrand secondGrand xs
+getGrandestWords' grandest secondGrandest [] = (grandest, secondGrandest)
+getGrandestWords' grandest secondGrandest [x]
+  | getGrandnessValue x > getGrandnessValue (head grandest) = getGrandestWords' [x] grandest []
+  | getGrandnessValue x == getGrandnessValue (head grandest) = getGrandestWords' (x:grandest) secondGrandest [] 
+  | getGrandnessValue x > getGrandnessValue (head secondGrandest) = getGrandestWords' grandest [x] [] 
+  | getGrandnessValue x == getGrandnessValue (head secondGrandest) = getGrandestWords' grandest (x:secondGrandest) [] 
+  | otherwise = getGrandestWords' grandest secondGrandest []
+getGrandestWords' grandest secondGrandest (x:xs)
+  | getGrandnessValue x > getGrandnessValue (head grandest) = getGrandestWords' [x] grandest xs
+  | getGrandnessValue x == getGrandnessValue (head grandest) = getGrandestWords' (x:grandest) secondGrandest xs 
+  | getGrandnessValue x > getGrandnessValue (head secondGrandest) = getGrandestWords' grandest [x] [] 
+  | getGrandnessValue x == getGrandnessValue (head secondGrandest) = getGrandestWords' grandest (x:secondGrandest) xs 
+  | otherwise = getGrandestWords' grandest secondGrandest xs
 
 getGrandnessValue :: String -> Int
 getGrandnessValue word =

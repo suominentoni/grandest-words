@@ -5,9 +5,10 @@ import Data.List (nub)
 
 main = do
   contents <- getContents
-  print $ getGrandestWords (words contents)
+  print $ getGrandestWords contents
 
-getGrandestWords words = getGrandestWords' [""] [""] words
+getGrandestWords :: String -> ([String],[ String])
+getGrandestWords contents = getGrandestWords' [""] [""] $ words contents
 
 getGrandestWords' :: [String] -> [String] -> [String] -> ([String], [String])
 getGrandestWords' grandest secondGrandest [] = (grandest, secondGrandest)

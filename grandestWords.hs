@@ -21,7 +21,7 @@ getGrandestWords' grandest secondGrandest [x]
 getGrandestWords' grandest secondGrandest (x:xs)
   | getGrandnessValue x > getGrandnessValue (head grandest) = getGrandestWords' [x] grandest xs
   | getGrandnessValue x == getGrandnessValue (head grandest) = getGrandestWords' (x:grandest) secondGrandest xs 
-  | getGrandnessValue x > getGrandnessValue (head secondGrandest) = getGrandestWords' grandest [x] [] 
+  | getGrandnessValue x > getGrandnessValue (head secondGrandest) = getGrandestWords' grandest [x] xs
   | getGrandnessValue x == getGrandnessValue (head secondGrandest) = getGrandestWords' grandest (x:secondGrandest) xs 
   | otherwise = getGrandestWords' grandest secondGrandest xs
 

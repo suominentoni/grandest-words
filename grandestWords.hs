@@ -2,10 +2,14 @@ module GrandestWords (getGrandestWords) where
 
 import Data.Char (isLetter, toLower)
 import Data.List (nub)
+import System.IO (hGetContents, openFile, IOMode(ReadMode))
+import System.Environment (getArgs)
 
 main = do
-  contents <- getContents
-  print $ getGrandestWords contents
+  args <- getArgs
+  handle <- openFile (head args) ReadMode
+  contents <- hGetContents handle
+  print $ getGrandestWordPairs contents
 
 getGrandestWords :: String -> ([String],[ String])
 getGrandestWords contents = getGrandestWords' [""] [""] $ words contents

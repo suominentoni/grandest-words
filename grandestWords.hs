@@ -1,4 +1,4 @@
-module GrandestWords (getGrandestWords) where
+module GrandestWords (getGrandestWords, getGrandestWordPairs) where
 
 import Data.Char (isLetter, toLower)
 import Data.List (nub)
@@ -32,4 +32,21 @@ getGrandestWords' grandest secondGrandest (x:xs)
 getGrandness :: String -> Int
 getGrandness word =
   length $ nub $ map toLower $ filter isLetter word
+
+getGrandestWordPairs :: String -> [(String, String)]
+getGrandestWordPairs contents = getGrandestWordPairs' (words contents) (words contents) [("", "")]
+
+getGrandestWordPairs' :: [String] -> [String]-> [(String, String)] -> [(String, String)]
+getGrandestWordPairs' [] remaining grandestPairs
+  | remaining == [] = grandestPairs
+  | otherwise = getGrandestWordPairs' (tail remaining) (tail remaining) grandestPairs
+getGrandestWordPairs' [x] remaining grandestPairs = getGrandestWordPairs' [] remaining grandestPairs
+getGrandestWordPairs' (x:xs) remaining grandestPairs
+  | isNewGrandestPair      = getGrandestWordPairs' ([x] ++ (tail xs)) remaining [(x,(head xs))]
+  | isACurrentGrandestPair = getGrandestWordPairs' ([x] ++ (tail xs)) remaining (grandestPairs ++ [(x,(head xs))])
+  | otherwise              = getGrandestWordPairs' ([x] ++ (tail xs)) remaining grandestPairs
+  where isNewGrandestPair = getGrandness (x ++ (head xs)) >  getGrandness (((fst $ head grandestPairs) ++ (snd $ head grandestPairs)))
+        isACurrentGrandestPair = getGrandness (x ++ (head xs)) == getGrandness (((fst $ head grandestPairs) ++ (snd $ head grandestPairs)))
+
+
 

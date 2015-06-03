@@ -1,7 +1,7 @@
-module GrandestWords (getGrandestWords, getGrandestWordPairs) where
+module GrandestWords (getGrandestPairs) where
 
 import Data.Char (isLetter, toLower)
-import Data.List (nub)
+import Data.List (nub, sortBy)
 import System.IO (hGetContents, openFile, IOMode(ReadMode))
 import System.Environment (getArgs)
 
@@ -9,44 +9,55 @@ main = do
   args <- getArgs
   handle <- openFile (head args) ReadMode
   contents <- hGetContents handle
-  print $ getGrandestWordPairs contents
+  print $ getGrandestPairs contents
 
-getGrandestWords :: String -> ([String],[ String])
-getGrandestWords contents = getGrandestWords' [""] [""] $ words contents
+getGrandestPairs :: String -> [(String, String)]
+getGrandestPairs contents = getGrandestPairs' sortedWords sortedWords [("", "")]
+  where sortedWords = (sortBy compareGrandness (words contents))
 
-getGrandestWords' :: [String] -> [String] -> [String] -> ([String], [String])
-getGrandestWords' grandest secondGrandest [] = (grandest, secondGrandest)
-getGrandestWords' grandest secondGrandest [x]
-  | getGrandness x >  getGrandness (head grandest) = getGrandestWords' [x] grandest []
-  | getGrandness x == getGrandness (head grandest) = getGrandestWords' (grandest ++ [x]) secondGrandest []
-  | getGrandness x >  getGrandness (head secondGrandest) = getGrandestWords' grandest [x] []
-  | getGrandness x == getGrandness (head secondGrandest) = getGrandestWords' grandest (secondGrandest ++ [x]) []
-  | otherwise = getGrandestWords' grandest secondGrandest []
-getGrandestWords' grandest secondGrandest (x:xs)
-  | getGrandness x >  getGrandness (head grandest) = getGrandestWords' [x] grandest xs
-  | getGrandness x == getGrandness (head grandest) = getGrandestWords' (grandest ++ [x]) secondGrandest xs
-  | getGrandness x >  getGrandness (head secondGrandest) = getGrandestWords' grandest [x] xs
-  | getGrandness x == getGrandness (head secondGrandest) = getGrandestWords' grandest (secondGrandest ++ [x]) xs
-  | otherwise = getGrandestWords' grandest secondGrandest xs
+getGrandestPairs' :: [String] -> [String] -> [(String, String)] -> [(String, String)]
+getGrandestPairs' [] _ grandestPairs          = grandestPairs
+getGrandestPairs' (_:xs) [] grandestPairs     = getGrandestPairs' xs xs grandestPairs
+getGrandestPairs' [x] (y:ys) grandestPairs
+  | (getGrandness $ x ++ y) < getPairGrandness grandestPairs = getGrandestPairs' [] ys grandestPairs
+  | greaterThanGrandestPair x y grandestPairs = getGrandestPairs' [] ys [(x,y)]
+  | equalToGrandestPair     x y grandestPairs = getGrandestPairs' [] ys (grandestPairs ++ [(x,y)])
+  | otherwise                                 = getGrandestPairs' [] ys grandestPairs
+getGrandestPairs' [x] [y] grandestPairs
+  | (getGrandness $ x ++ y) < getPairGrandness grandestPairs = getGrandestPairs' [] [] grandestPairs
+  | greaterThanGrandestPair x y grandestPairs = getGrandestPairs' [] [] [(x,y)]
+  | equalToGrandestPair     x y grandestPairs = getGrandestPairs' [] [] (grandestPairs ++ [(x,y)])
+  | otherwise                                 = getGrandestPairs' [] [] grandestPairs
+getGrandestPairs' (x:xs) (y:ys) grandestPairs
+  | (getGrandness $ x ++ y) < getPairGrandness grandestPairs = getGrandestPairs' (x:xs) ys grandestPairs
+  | greaterThanGrandestPair x y grandestPairs = getGrandestPairs' (x:xs) ys [(x,y)]
+  | equalToGrandestPair     x y grandestPairs = getGrandestPairs' (x:xs) ys (grandestPairs ++ [(x,y)])
+  | otherwise                                 = getGrandestPairs' (x:xs) ys grandestPairs
+getGrandestPairs' (x:xs) [y] grandestPairs
+  | (getGrandness $ x ++ y) < getPairGrandness grandestPairs = getGrandestPairs' xs (x:xs) grandestPairs
+  | greaterThanGrandestPair x y grandestPairs = getGrandestPairs' xs (x:xs) [(x,y)]
+  | equalToGrandestPair     x y grandestPairs = getGrandestPairs' xs (x:xs) (grandestPairs ++ [(x,y)])
+  | otherwise                                 = getGrandestPairs' xs xs grandestPairs
+
+lessThanGrandestPair :: String -> String -> [(String, String)] -> Bool
+lessThanGrandestPair word1 word2 grandestPairs = (getGrandness $ word1 ++ word2) < getPairGrandness grandestPairs
+
+greaterThanGrandestPair :: String -> String -> [(String, String)] -> Bool
+greaterThanGrandestPair word1 word2 grandestPairs = (getGrandness $ word1 ++ word2) > getPairGrandness grandestPairs
+
+equalToGrandestPair :: String -> String -> [(String, String)] -> Bool
+equalToGrandestPair word1 word2 grandestPairs = (getGrandness $ word1 ++ word2) == getPairGrandness grandestPairs
+
+getPairGrandness :: [(String, String)] -> Int
+getPairGrandness grandestPairs = (getGrandness $ (fst $ head grandestPairs) ++ (snd $ head grandestPairs))
 
 getGrandness :: String -> Int
 getGrandness word =
   length $ nub $ map toLower $ filter isLetter word
 
-getGrandestWordPairs :: String -> [(String, String)]
-getGrandestWordPairs contents = getGrandestWordPairs' (words contents) (words contents) [("", "")]
-
-getGrandestWordPairs' :: [String] -> [String]-> [(String, String)] -> [(String, String)]
-getGrandestWordPairs' [] remaining grandestPairs
-  | remaining == [] = grandestPairs
-  | otherwise = getGrandestWordPairs' (tail remaining) (tail remaining) grandestPairs
-getGrandestWordPairs' [x] remaining grandestPairs = getGrandestWordPairs' [] remaining grandestPairs
-getGrandestWordPairs' (x:xs) remaining grandestPairs
-  | isNewGrandestPair      = getGrandestWordPairs' ([x] ++ (tail xs)) remaining [(x,(head xs))]
-  | isACurrentGrandestPair = getGrandestWordPairs' ([x] ++ (tail xs)) remaining (grandestPairs ++ [(x,(head xs))])
-  | otherwise              = getGrandestWordPairs' ([x] ++ (tail xs)) remaining grandestPairs
-  where isNewGrandestPair = getGrandness (x ++ (head xs)) >  getGrandness (((fst $ head grandestPairs) ++ (snd $ head grandestPairs)))
-        isACurrentGrandestPair = getGrandness (x ++ (head xs)) == getGrandness (((fst $ head grandestPairs) ++ (snd $ head grandestPairs)))
-
-
+compareGrandness :: String -> String -> Ordering
+compareGrandness a b
+  | getGrandness a < getGrandness b = GT
+  | getGrandness a > getGrandness b = LT
+  | otherwise = EQ
 

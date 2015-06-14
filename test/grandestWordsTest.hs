@@ -8,5 +8,6 @@ main = do
                                      (GrandestWords.getGrandestPairs "qw you bet gh and ui plr")
                         , "test2" ~: assertEqual
                                      "Should return grandest word pairs"
-                                     [("Dwarf-Lords,", "craftsmen")]
+                                     [("craftsmen", "Dwarf-Lords,"), ("Dwarf-Lords,", "mountain")]
                                      (GrandestWords.getGrandestPairs "Seven to the Dwarf-Lords, great miners and craftsmen of the mountain halls") ]
+

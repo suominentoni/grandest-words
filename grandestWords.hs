@@ -18,29 +18,19 @@ getGrandestPairs contents = getGrandestPairs' (sortBy compareGrandness wordsWith
 getGrandestPairs' :: [(String, Int)] -> ([(String, String)], Int) -> ([(String, String)], Int)
 getGrandestPairs' [] grandestPairs = grandestPairs
 getGrandestPairs' (x:xs) grandestPairs
-  | sumLessThanGrandestPair x x grandestPairs = grandestPairs
+  | grandnessSum < snd grandestPairs = grandestPairs
   | otherwise = getGrandestPairs' xs (getGrandestPairsForAWord x xs grandestPairs)
+  where grandnessSum = (snd x) + (snd x)
 
 getGrandestPairsForAWord :: (String, Int) -> [(String, Int)] -> ([(String, String)], Int) -> ([(String, String)], Int)
 getGrandestPairsForAWord word [] grandestPairs = grandestPairs
 getGrandestPairsForAWord word (x:xs) grandestPairs
-  | sumLessThanGrandestPair word x grandestPairs = grandestPairs
-  | lessThanGrandestPair    word x grandestPairs = getGrandestPairsForAWord word xs grandestPairs
-  | greaterThanGrandestPair word x grandestPairs = getGrandestPairsForAWord word xs ([((fst word),(fst x))], (getGrandness $ (fst word) ++ (fst x)))
-  | equalToGrandestPair     word x grandestPairs = getGrandestPairsForAWord word xs (((fst grandestPairs) ++ [((fst word),(fst x))]), (snd grandestPairs))
-  | otherwise = getGrandestPairsForAWord word xs grandestPairs
-
-sumLessThanGrandestPair :: (String, Int) -> (String, Int) -> ([(String, String)], Int) -> Bool
-sumLessThanGrandestPair word1 word2 grandestPairs = ((snd word1) + (snd word2)) < snd grandestPairs
-
-lessThanGrandestPair :: (String, Int) -> (String, Int) -> ([(String, String)], Int) -> Bool
-lessThanGrandestPair word1 word2 grandestPairs = ((getGrandness $ (fst word1) ++ (fst word2))) < snd grandestPairs
-
-greaterThanGrandestPair :: (String, Int) -> (String, Int) -> ([(String, String)], Int) -> Bool
-greaterThanGrandestPair word1 word2 grandestPairs = (getGrandness $ (fst word1) ++ (fst word2)) > snd grandestPairs
-
-equalToGrandestPair :: (String, Int) -> (String, Int) -> ([(String, String)], Int) -> Bool
-equalToGrandestPair word1 word2 grandestPairs = (getGrandness $ (fst word1) ++ (fst word2)) == snd grandestPairs
+  | grandnessSum  <  snd grandestPairs = grandestPairs
+  | pairGrandness <  snd grandestPairs = getGrandestPairsForAWord word xs grandestPairs
+  | pairGrandness >  snd grandestPairs = getGrandestPairsForAWord word xs ([((fst word),(fst x))], (getGrandness $ (fst word) ++ (fst x)))
+  | pairGrandness == snd grandestPairs = getGrandestPairsForAWord word xs (((fst grandestPairs) ++ [((fst word),(fst x))]), (snd grandestPairs))
+  where pairGrandness = getGrandness $ (fst word) ++ (fst x)
+        grandnessSum = (snd word) + (snd x)
 
 getGrandness :: String -> Int
 getGrandness word =

@@ -9,5 +9,13 @@ main = do
                         , "test2" ~: assertEqual
                                      "Should return grandest word pairs"
                                      ([("craftsmen", "Dwarf-Lords,"), ("Dwarf-Lords,", "mountain")], 13)
-                                     (GrandestWords.getGrandestPairs "Seven to the Dwarf-Lords, great miners and craftsmen of the mountain halls") ]
+                                     (GrandestWords.getGrandestPairs "Seven to the Dwarf-Lords, great miners and craftsmen of the mountain halls")
+                        , "test3" ~: assertEqual
+                                     "Should ignore case"
+                                     ([("shout", "SHOUT")], 5)
+                                     (GrandestWords.getGrandestPairs "shout SHOUT")
+                        , "test4" ~: assertEqual
+                                     "Should ignore special characters and numbers"
+                                     ([("C3-PO", "R2-D2") ], 5)
+                                     (GrandestWords.getGrandestPairs "R2-D2 C3-PO") ]
 

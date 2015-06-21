@@ -9,7 +9,7 @@ main = do
   args <- getArgs
   handle <- openFile (head args) ReadMode
   contents <- hGetContents handle
-  print $ nub $ fst $ getGrandestPairs contents
+  mapM (\x -> putStrLn $ (fst x) ++ " " ++ (snd x)) (nub $ fst $ getGrandestPairs contents)
 
 getGrandestPairs :: String -> ([(String, String)], Int)
 getGrandestPairs contents = getGrandestPairs' (sortBy compareGrandness wordsWithGrandness) ([("", "")], 0)
